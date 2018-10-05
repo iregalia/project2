@@ -5,6 +5,7 @@ import imutils
 import numpy as np
 import cv2
 import time
+import serial
 
 # params
 size = 200
@@ -17,6 +18,9 @@ left_bound = width/2 - bound_wid
 # ap = argparse.ArgumentParser()
 # ap.add_argument("-i", "--image", required=True, help="path to the input image")
 # args = vars(ap.parse_args())
+
+# initialize uart
+ser = serial.Serial("/dev/serial0", 9600)
 
 # initialize camera and grab reference
 camera = PiCamera()
@@ -74,13 +78,13 @@ for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=
                     cv2.circle(image, (cX, cY), 7, (0, 0, 255), -1)
                 if M["m00"] > size:
                     if cX>0 and cX<left_bound:
-                        #ser.write("L")
+                        ser.write("L")
                         print("Left")
                     elif cX > (width - left_bound):
-                        #ser.write("R")
+                        ser.write("R")
                         print("Right")
                     else:
-                        #ser.write("S")
+                        ser.write("S")
                         print("Straight")
 
 	# show the frame
