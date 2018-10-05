@@ -1,0 +1,5 @@
+cmake_minimum_required(VERSION 2.8)
+project( ImageRead )
+find_package( OpenCV REQUIRED )
+add_executable( ImageRead ImageRead.cpp )
+target_link_libraries( ImageRead ${OpenCV_LIBS} )
