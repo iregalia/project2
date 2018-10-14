@@ -177,12 +177,12 @@ for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=
         stream.write({'x': i, 'y': sens_data})
         i += 1
         
-        if x_ang > 1:
-            ser.write("F")
-            print("Forward")
-        elif x_ang < -1:
-            ser.write("B")
-            print("Back")
+        #if x_ang > 1:
+        #    ser.write("F")
+        #    print("Forward")
+        #elif x_ang < -1:
+        #    ser.write("B")
+        #    print("Back")
             
 	# if the `q` key was pressed, break from the loop
         if key == ord("q"):

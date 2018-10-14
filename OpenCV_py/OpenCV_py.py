@@ -86,6 +86,9 @@ for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=
                     else:
                         ser.write("S")
                         print("Straight")
+                else:
+                    ser.write("N")
+                    print("Nothing")
 
 	# show the frame
 	cv2.imshow("Frame", image)
@@ -95,7 +98,7 @@ for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=
 
 	# clear the stream in preparation for the next frame
 	rawCapture.truncate(0)
-
+        time.sleep(0.5)
 	# if the `q` key was pressed, break from the loop
 	if key == ord("q"):
 		break
