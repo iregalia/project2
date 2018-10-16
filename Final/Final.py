@@ -14,13 +14,14 @@ mR = (5, 6)
 satadj = 1.25
 SLEEPTIME = 0.1
 base_spd = 0.1
-turn_factor = 0.5
-turn_count = 0
+turn_factor = 0.6
+turn_spd = base_spd * turn_factor
+turning = 0
 
 # tuning camera params (to change)
 size = 700
 turn_size = 4000
-bound_wid = 25
+gate_wid = 25
 gate = 100
 gate_L = width/2 - gate
 gate_R = width/2 + gate
@@ -30,16 +31,20 @@ greenLower = (29, 86, 50)
 greenUpper = (64, 255, 255)
 white = (255, 255, 255)
 
-def roundabout(turn_count):
-	left = base_spd * 	
+#def roundabout(turn_count):
+#	if turn_count % 2 == 0
+#def roundabout():
+#	left = base_spd * turn_factor
+#	right = base_spd
+#	return left,right
 
 # motor setup
 r = Robot(mL, mR)
 
-mL_speed = base_spd
-mR_speed = base_spd
+# m_speed = (mL_speed, mR_speed)
+m_speed = (base_spd, base_spd)
+r.value = m_speed
 
-r.value = (mL_speed, mR_speed)
 # initialize camera and grab reference
 camera = PiCamera()
 camera.resolution = (width, height)
@@ -83,31 +88,30 @@ for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=
     conts = conts[0] if imutils.is_cv2() else conts[1]
     # loop through all existing contours
     for c in conts:
+		if turning == 1:
+			break
         # compute the centre of the contour
         M = cv2.moments(c)
         print(M["m00"])
-        if M["m00"] > size/2:
+        if M["m00"] > size:
             cX = int(M["m10"] / M["m00"])
             cY = int(M["m01"] / M["m00"])
+			
+			if cX > gate_L - gate_wid and cX < gate_L + gate_wid:
+				if M["m00"] > turn_size:
+					m_speed = (0, 0)
+					#m_speed = (turn_spd, base_spd)
+					turning = 1
+				else:
+					m_speed = (base_spd, base_spd)
+			elif cX > gate_L + gate_wid:
+				m_speed = (turn_spd, base_spd)			
+			elif cX > 0 and cX < gate_L - gate_wid:
+				m_speed = (base_spd, turn_spd)
+			else:
+				m_speed = (base_spd, base_spd)
         else:
             cX, cY = 0, 0
-	
-	#draw contour and centre of shape on image
-        if M["m00"] > size:
-            cv2.drawContours(filt,[c],-1,(0, 255, 0),2)
-            cv2.circle(image, (cX, cY), 7, (0, 0, 255), -1)
-            if cX>0 and cX<left_bound:
-                mL_speed = base_spd / 2
-                mR_speed = base_spd
-                print("Left")
-            elif cX > (width - left_bound):
-                mL_speed = base_spd
-                mR_speed = base_spd / 2
-                print("Right")
-            else:
-                mL_speed = base_spd
-                mL_speed = base_spd
-                print("Straight")
 				
     # update motor speed
     r.value = (mL_speed, mR_speed)
