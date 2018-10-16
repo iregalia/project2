@@ -14,6 +14,8 @@ mR = (5, 6)
 satadj = 1.25
 SLEEPTIME = 0.1
 base_spd = 0.1
+turn_factor = 0.5
+turn_count = 0
 
 # tuning camera params (to change)
 size = 700
@@ -27,6 +29,9 @@ gate_R = width/2 + gate
 greenLower = (29, 86, 50) 
 greenUpper = (64, 255, 255)
 white = (255, 255, 255)
+
+def roundabout(turn_count):
+	left = base_spd * 	
 
 # motor setup
 r = Robot(mL, mR)
@@ -50,7 +55,7 @@ for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=
     # grab the raw NumPy array representing the image, then initialize the timestamp
     # and occupied/unoccupied text
     image = frame.array
-    
+	
     # convert to hsv for colour thresh
     blur = cv2.GaussianBlur(image, (11, 11), 0)
     
@@ -103,15 +108,11 @@ for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=
                 mL_speed = base_spd
                 mL_speed = base_spd
                 print("Straight")
-    #    if conts == 0:
-    #        print("Nothing")
+				
     # update motor speed
     r.value = (mL_speed, mR_speed)
-    # show the frame
-    #cv2.imshow("Frame", image)
-    #cv2.imshow("Frame", gray)
-    #cv2.imshow("Thresh", filt)
-    key = cv2.waitKey(1) & 0xFF
+    
+	key = cv2.waitKey(1) & 0xFF
 
     # clear the stream in preparation for the next frame
     rawCapture.truncate(0)
@@ -119,4 +120,3 @@ for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=
     # if the `q` key was pressed, break from the loop
     if key == ord("q"):
         break
-
