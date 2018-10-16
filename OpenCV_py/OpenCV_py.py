@@ -8,16 +8,12 @@ import time
 import serial
 
 # params
-size = 200
+size = 400
 width = 384
 height = 288
 bound_wid = 25
 left_bound = width/2 - bound_wid
-
-# construct argument parse and prase arguments
-# ap = argparse.ArgumentParser()
-# ap.add_argument("-i", "--image", required=True, help="path to the input image")
-# args = vars(ap.parse_args())
+satadj = 1.25
 
 # initialize uart
 ser = serial.Serial("/dev/serial0", 9600)
@@ -32,7 +28,7 @@ rawCapture = PiRGBArray(camera, size=(width, height))
 time.sleep(0.1)
 
 # threshold variables
-greenLower = (29, 86, 100)
+greenLower = (29, 86, 50)
 greenUpper = (64, 255, 255)
 white = (255, 255, 255)
 
@@ -45,7 +41,13 @@ for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=
 
 	# convert to hsv for colour thresh
 	blur = cv2.GaussianBlur(image, (11, 11), 0)
-	hsv_im = cv2.cvtColor(blur, cv2.COLOR_BGR2HSV)
+	
+	# saturation adjust
+	hsv_im = cv2.cvtColor(blur, cv2.COLOR_BGR2HSV).astype("float32")
+	(h, s, v) = cv2.split(hsv_im)
+	s = s*satadj
+	s = np.clip(s, 0, 255)
+	hsv_im = cv2.merge([h,s,v])
 	mask = cv2.inRange(hsv_im, greenLower, greenUpper)
 
 	# separating green

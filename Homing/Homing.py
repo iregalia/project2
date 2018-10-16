@@ -7,17 +7,19 @@ import cv2
 import time
 
 # constant params
-size = 400
+size = 700
 width = 384
 height = 288
 bound_wid = 25
 left_bound = width/2 - bound_wid
-base_spd = 0.1
+base_spd = 0.12
 mL = (23, 24)
 mR = (5, 6)
+satadj = 1.25
+SLEEPTIME = 0.1
 
-# threshold variables
-greenLower = (29, 86, 100)
+# threshold variables #hsv 
+greenLower = (29, 86, 50) 
 greenUpper = (64, 255, 255)
 white = (255, 255, 255)
 
@@ -46,7 +48,14 @@ for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=
     
     # convert to hsv for colour thresh
     blur = cv2.GaussianBlur(image, (11, 11), 0)
-    hsv_im = cv2.cvtColor(blur, cv2.COLOR_BGR2HSV)
+    
+    # saturation adjust
+    hsv_im = cv2.cvtColor(blur, cv2.COLOR_BGR2HSV).astype("float32")
+    (h, s, v) = cv2.split(hsv_im)
+    s = s*satadj
+    s = np.clip(s, 0, 255)
+    hsv_im = cv2.merge([h,s,v])
+    
     mask = cv2.inRange(hsv_im, greenLower, greenUpper)
     
     # separating green
@@ -101,7 +110,7 @@ for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=
 
     # clear the stream in preparation for the next frame
     rawCapture.truncate(0)
-    time.sleep(0.5)
+    time.sleep(SLEEPTIME)
     # if the `q` key was pressed, break from the loop
     if key == ord("q"):
         break
