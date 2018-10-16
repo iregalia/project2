@@ -12,31 +12,28 @@ height = 288
 mL = (23, 24)
 mR = (5, 6)
 satadj = 1.25
-SLEEPTIME = 0.1
-base_spd = 0.1
-turn_factor = 0.6
-turn_spd = base_spd * turn_factor
+SLEEPTIME = 0.05
+preturn = 2.5
+turn = 2
+base_spd = 0.11
+turn_fact = 0.65
+turn_spd = base_spd * turn_fact
+adj_fact = 0.8
+adj_spd = base_spd * adj_fact
 turning = 0
 
 # tuning camera params (to change)
 size = 700
-turn_size = 4000
-gate_wid = 25
-gate = 100
-gate_L = width/2 - gate
-gate_R = width/2 + gate
+turn_size = 4300
+gate_wid = 70
+gate_dis = 60
+gate_L = width/2 - gate_dis
+gate_R = width/2 + gate_dis
 
 # threshold variables #hsv 
 greenLower = (29, 86, 50) 
 greenUpper = (64, 255, 255)
 white = (255, 255, 255)
-
-#def roundabout(turn_count):
-#	if turn_count % 2 == 0
-#def roundabout():
-#	left = base_spd * turn_factor
-#	right = base_spd
-#	return left,right
 
 # motor setup
 r = Robot(mL, mR)
@@ -88,35 +85,65 @@ for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=
     conts = conts[0] if imutils.is_cv2() else conts[1]
     # loop through all existing contours
     for c in conts:
-		if turning == 1:
-			break
-        # compute the centre of the contour
+	# compute the centre of the contour
         M = cv2.moments(c)
         print(M["m00"])
-        if M["m00"] > size:
+        
+        if turning == 1:
+            time.sleep(turn)
+            if M["m00"] > size:
+                m_speed = (base_spd, base_spd)
+                r.value = m_speed
+                turning = 0
+                print("FOUND YA")
+        
+        elif M["m00"] > size:
             cX = int(M["m10"] / M["m00"])
             cY = int(M["m01"] / M["m00"])
-			
-			if cX > gate_L - gate_wid and cX < gate_L + gate_wid:
-				if M["m00"] > turn_size:
-					m_speed = (0, 0)
-					#m_speed = (turn_spd, base_spd)
-					turning = 1
-				else:
-					m_speed = (base_spd, base_spd)
-			elif cX > gate_L + gate_wid:
-				m_speed = (turn_spd, base_spd)			
-			elif cX > 0 and cX < gate_L - gate_wid:
-				m_speed = (base_spd, turn_spd)
-			else:
-				m_speed = (base_spd, base_spd)
+            print ('cX = ', cX)
+            if M["m00"] > turn_size:
+                m_speed = (base_spd, base_spd)
+                r.value = m_speed
+                print("Start timer")
+                time.sleep(preturn)
+                #m_speed = (0, 0)
+                m_speed = (turn_spd, base_spd)
+                turning = 1
+                print ('turning =', turning)
+                print("Stop")
+            elif M["m00"] > turn_size * 0.5:
+                if cX > gate_L - 1.5 * gate_wid and cX < gate_L:
+                    m_speed = (base_spd, base_spd)
+                    print("Straight")
+                elif cX > gate_L + 1.5 * gate_wid:
+                    m_speed = (base_spd, adj_spd)
+                    print("Right")
+                elif cX > 0 and cX < gate_L - 1.5 * gate_wid:
+                    m_speed = (turn_spd, base_spd)
+                    print("T Left")
+                else:
+                    m_speed = (base_spd, base_spd)
+                    print("Straight")
+            else:
+                if cX > gate_L - gate_wid and cX < gate_L + gate_wid:
+                    m_speed = (base_spd, base_spd)
+                    print("Straight")
+                elif cX > gate_L + gate_wid:
+                    m_speed = (base_spd, adj_spd)
+                    print("Right")
+                elif cX > 0 and cX < gate_L - gate_wid:
+                    m_speed = (adj_spd, base_spd)
+                    print("Left")
+                else:
+                    m_speed = (base_spd, base_spd)
+                    print("Straight")
         else:
             cX, cY = 0, 0
 				
     # update motor speed
-    r.value = (mL_speed, mR_speed)
+    r.value = m_speed
     
-	key = cv2.waitKey(1) & 0xFF
+    key = cv2.waitKey(1) & 0xFF
 
     # clear the stream in preparation for the next frame
     rawCapture.truncate(0)
