@@ -13,26 +13,26 @@ mL = (23, 24)
 mR = (5, 6)
 satadj = 1.25
 SLEEPTIME = 0.05
-preturn = 2
+preturn = 2.5
 turn = 0.5
 base_spd = 0.09
-turn_fact = 0.75
+turn_fact = 0.7
 turn_spd = base_spd * turn_fact
 adj_fact = 0.75
 adj_spd = base_spd * adj_fact
 turning = 0
 
 # tuning camera params (to change)
-size = 500
-turn_size = 7000
+size = 700
+turn_size = 8000
 gate_wid = 50
-gate_dis = 40
+gate_dis = 50
 gate_L = width/2 - gate_dis
 gate_R = width/2 + gate_dis
 
 # threshold variables #hsv 
-greenLower = (29, 86, 40) 
-greenUpper = (64, 255, 255)
+greenLower = (29, 86, 35) 
+greenUpper = (70, 255, 255)
 white = (255, 255, 255)
 
 # motor setup
@@ -87,17 +87,17 @@ for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=
     for c in conts:
 	# compute the centre of the contour
         M = cv2.moments(c)
-        print(M["m00"])
         
         if turning == 1:
             time.sleep(turn)
-            if M["m00"] > size:
-                m_speed = (base_spd, base_spd)
+            if M["m00"] > size/2:
+                m_speed = (2*base_spd, 2*base_spd)
                 r.value = m_speed
                 turning = 0
                 print("FOUND YA")
         
         elif M["m00"] > size:
+            print(M["m00"])
             cX = int(M["m10"] / M["m00"])
             cY = int(M["m01"] / M["m00"])
             print ('cX = ', cX)

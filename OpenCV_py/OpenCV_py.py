@@ -28,8 +28,8 @@ rawCapture = PiRGBArray(camera, size=(width, height))
 time.sleep(0.1)
 
 # threshold variables
-greenLower = (29, 86, 35)
-greenUpper = (64, 255, 255)
+greenLower = (29, 86, 50)
+greenUpper = (70, 255, 255)
 white = (255, 255, 255)
 
 # grab an image
