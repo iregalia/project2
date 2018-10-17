@@ -13,20 +13,20 @@ mL = (23, 24)
 mR = (5, 6)
 satadj = 1.25
 SLEEPTIME = 0.05
-preturn = 2.5
+preturn = 2
 turn = 0.5
-base_spd = 0.1
-turn_fact = 0.7
+base_spd = 0.09
+turn_fact = 0.75
 turn_spd = base_spd * turn_fact
 adj_fact = 0.75
 adj_spd = base_spd * adj_fact
 turning = 0
 
 # tuning camera params (to change)
-size = 700
+size = 500
 turn_size = 7000
 gate_wid = 50
-gate_dis = 60
+gate_dis = 40
 gate_L = width/2 - gate_dis
 gate_R = width/2 + gate_dis
 
@@ -102,15 +102,19 @@ for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=
             cY = int(M["m01"] / M["m00"])
             print ('cX = ', cX)
             if M["m00"] > turn_size:
-                m_speed = (base_spd, base_spd)
-                r.value = m_speed
-                print("Start timer")
-                time.sleep(preturn)
-                #m_speed = (0, 0)
-                m_speed = (turn_spd, base_spd)
-                turning = 1
-                print ('turning =', turning)
-                print("Stop")
+                if cX > gate_L - 3 * gate_wid:
+                    m_speed = (base_spd, base_spd)
+                    r.value = m_speed
+                    print("Start timer")
+                    time.sleep(preturn)
+                    #m_speed = (0, 0)
+                    m_speed = (turn_spd, base_spd)
+                    turning = 1
+                    print ('turning =', turning)
+                    print("Stop")
+                else:
+                    m_speed = (turn_spd, base_spd)
+                    print("T Left")
             elif M["m00"] > turn_size * 0.5:
                 if cX > gate_L - 3 * gate_wid and cX < gate_L:
                     m_speed = (base_spd, base_spd)
