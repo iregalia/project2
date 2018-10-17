@@ -25,7 +25,7 @@ turning = 0
 # tuning camera params (to change)
 size = 700
 turn_size = 4300
-gate_wid = 70
+gate_wid = 40
 gate_dis = 60
 gate_L = width/2 - gate_dis
 gate_R = width/2 + gate_dis
@@ -111,21 +111,34 @@ for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=
                 turning = 1
                 print ('turning =', turning)
                 print("Stop")
-            elif M["m00"] > turn_size * 0.5:
-                if cX > gate_L - 1.5 * gate_wid and cX < gate_L:
+            elif M["m00"] > turn_size * 0.6:
+                if cX > gate_L - 2 * gate_wid and cX < gate_L:
+                    m_speed = (base_spd, base_spd)
+                    print("Straight")
+                elif cX > gate_L + 2 * gate_wid:
+                    m_speed = (base_spd, adj_spd)
+                    print("Right")
+                elif cX > 0 and cX < gate_L - 2 * gate_wid:
+                    m_speed = (turn_spd, base_spd)
+                    print("T Left")
+                else:
+                    m_speed = (base_spd, base_spd)
+                    print("Straight")
+            elif M["m00"] > turn_size * 0.3:
+                if cX > gate_L - 1.5 * gate_wid and cX < gate_L + gate_wid:
                     m_speed = (base_spd, base_spd)
                     print("Straight")
                 elif cX > gate_L + 1.5 * gate_wid:
                     m_speed = (base_spd, adj_spd)
                     print("Right")
                 elif cX > 0 and cX < gate_L - 1.5 * gate_wid:
-                    m_speed = (turn_spd, base_spd)
-                    print("T Left")
+                    m_speed = (adj_spd, base_spd)
+                    print("Left")
                 else:
                     m_speed = (base_spd, base_spd)
                     print("Straight")
             else:
-                if cX > gate_L - gate_wid and cX < gate_L + gate_wid:
+                if cX > gate_L - gate_wid and cX < gate_L + 1.5 * gate_wid:
                     m_speed = (base_spd, base_spd)
                     print("Straight")
                 elif cX > gate_L + gate_wid:
